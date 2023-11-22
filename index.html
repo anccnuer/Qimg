@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="nexmoe.css">
+	<style>
+		body {
+			text-align: center;
+		}
+		#myinput {
+			margin-bottom: 20px;
+		}
+		#image {
+			width: 500px;
+			height: auto;
+		}
+	</style>
+	<title>简易图床</title>
+</head>
+
+<body>
+	<h1>简易图床</h1>
+	<input type="file" id="myinput" onchange="selectImage(this);">
+	<button onclick="uploadFile()">上传</button>
+	<br>
+	<img id="image" src=""/>
+	<script>
+		function selectImage(file) {
+			if (!file.files || !file.files[0]) {
+				return;
+			}
+			let reader = new FileReader();
+			reader.onload = function (evt) {
+				document.getElementById('image').src = evt.target.result;
+				image = evt.target.result;
+			}
+			reader.readAsDataURL(file.files[0]);
+		};
+		function uploadFile() {
+			let fileInput = document.getElementById("myinput");
+			let file = fileInput.files[0];
+
+			const formData = new FormData();
+			formData.append('image', file);
+
+
+			fetch("upload.php", {
+				method: "POST",
+				body: formData,
+			})
+				.then(function (response) {
+					return response.json();
+				})
+				.then(function (res) {
+					console.log(res);
+					let pic_info = res.data.image;
+					let url = "https://your-domains.com/path/" + pic_info.savepath + pic_info.savename;
+					let image = document.querySelector('#image');
+					image.remove();
+					add_pic_link(url);
+				})
+				.catch(function (error) {
+					console.error(error);
+				});
+		};
+		function add_pic_link(url) {
+			let link = document.createElement('div');
+			link.innerHTML = `
+			<h2>图片链接</h2>
+			<input id="link" value="${url}"></input>
+			<button onClick="copyText()">点我复制</button>
+			`;
+			document.body.appendChild(link);
+		}
+		function copyText() {
+			var link = document.getElementById("link");
+			link.select();
+			document.execCommand("copy");
+		}
+
+	</script>
+</body>
+
+</html>
