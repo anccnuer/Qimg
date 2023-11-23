@@ -1,4 +1,4 @@
-# Qimg
+# cute-img
 A simple image upload program
 
 # view
